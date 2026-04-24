@@ -14,6 +14,8 @@ Vulnerability scanning is the automated detection of security flaws in applicati
 
 ## 🛠️ Tools Used
 
+* Sonar Qube – Static code analysis
+* CodeQL – Code query language for vulnerability detection
 * Snyk – Dependency scanning (Maven)
 * Trivy – Container vulnerability scanning
 * TruffleHog – Secret detection
@@ -79,3 +81,9 @@ http://localhost:8080/?name=<script>alert(1)</script>
 ## 🎯 Conclusion
 
 This POC demonstrates how DevSecOps integrates security scanning directly into CI/CD pipelines for Spring Boot applications.
+
+* sonar => build failed due to vulnerabilities, but pipeline continues to run and deploys vulnerable code to production. This highlights the importance of enforcing security checks and not just reporting them.
+* Snyk => build fails if vulnerabilities are found, preventing deployment of vulnerable code.
+* Trivy => build fails if vulnerable container layers are detected, ensuring secure images are deployed.
+* TruffleHog => build fails if secrets are detected in code, preventing accidental exposure of sensitive information.
+

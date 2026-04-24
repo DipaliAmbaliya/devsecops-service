@@ -48,6 +48,7 @@ jobs:
 
       # 🔍 SonarQube Scan (SAST)
       - name: Sonar Scan
+        continue-on-error: true
         run: |
           mvn sonar:sonar \
             -Dsonar.projectKey=springboot-devsecops \

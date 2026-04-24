@@ -17,14 +17,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🔐 Secret Scanning
-      - name: TruffleHog Scan
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: .
-          fail: true
+      # 🔐 Secret Scanning (TruffleHog via CLI)
+      - name: Install TruffleHog
+        run: |
+          pip install trufflehog
 
-      # 🔍 CodeQL Init
+      - name: Run TruffleHog Scan
+        run: |
+          trufflehog filesystem . --fail
+
+      # 🔍 CodeQL Init (Stable Action)
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -42,26 +44,32 @@ jobs:
           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.qualitygate.wait=true
 
-      # 🔍 Dependency Scanning (Snyk)
-      - name: Snyk Scan
-        uses: snyk/actions/maven@master
+      # 🔍 Dependency Scan (Snyk via CLI)
+      - name: Install Snyk
+        run: npm install -g snyk
+
+      - name: Run Snyk Scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: test
+        run: |
+          snyk auth $SNYK_TOKEN
+          snyk test
 
       # 🐳 Build Docker Image
       - name: Build Docker Image
         run: docker build -t springboot-devsecops .
 
-      # 🐳 Container Scan (Trivy)
-      - name: Trivy Scan
-        uses: aquasecurity/trivy-action@v0.28.0
-        with:
-          image-ref: springboot-devsecops
-          format: table
-          exit-code: 1
-          severity: CRITICAL,HIGH
+      # 🐳 Container Scan (Trivy via CLI)
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install wget -y
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.50.0_Linux-64bit.deb
+
+      - name: Scan Docker Image
+        run: |
+          trivy image --severity CRITICAL,HIGH --exit-code 1 springboot-devsecops
 
       # 🔍 CodeQL Analysis
       - name: Perform CodeQL Analysis

@@ -17,9 +17,11 @@ jobs:
       security-events: write
 
     steps:
-      # 📥 Checkout Code
+      # 📥 Checkout Code (FIXED for Gitleaks)
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # 🔐 Secret Scanning (Gitleaks - FIXED)
       - name: Gitleaks Scan
@@ -61,7 +63,7 @@ jobs:
       - name: Build Docker Image
         run: docker build -t springboot-devsecops .
 
-      # 🐳 Container Scan (Trivy CLI)
+      # 🐳 Container Scan (Trivy CLI - STABLE)
       - name: Install Trivy
         run: |
           sudo apt-get update

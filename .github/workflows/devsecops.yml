@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🔐 Secret Scanning (FIXED)
+      # 🔐 Secret Scanning
       - name: TruffleHog Scan
         uses: trufflesecurity/trufflehog@main
         with:
@@ -30,33 +30,33 @@ jobs:
         with:
           languages: java
 
-      # ☕ Build
+      # ☕ Build Project
       - name: Build with Maven
         run: mvn clean install -DskipTests
 
-      # 🔍 SonarQube Scan (FIXED)
-      # - name: SonarQube Scan
-      #   run: mvn sonar:sonar \
-      #     -Dsonar.projectKey=springboot-devsecops \
-      #     -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-      #     -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-      #     -Dsonar.qualitygate.wait=true
+      # 🔍 SonarQube Scan (SAST)
+      - name: SonarQube Scan
+        run: mvn sonar:sonar \
+          -Dsonar.projectKey=springboot-devsecops \
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.qualitygate.wait=true
 
-      # 🔍 Snyk Scan (FIXED VERSION)
+      # 🔍 Dependency Scanning (Snyk)
       - name: Snyk Scan
-        uses: snyk/actions/maven@v3
+        uses: snyk/actions/maven@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: test
 
-      # 🐳 Build Docker
+      # 🐳 Build Docker Image
       - name: Build Docker Image
         run: docker build -t springboot-devsecops .
 
-      # 🐳 Trivy Scan (FIXED VERSION)
+      # 🐳 Container Scan (Trivy)
       - name: Trivy Scan
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@main
         with:
           image-ref: springboot-devsecops
           format: table
@@ -67,6 +67,6 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
-      # 🚀 Deploy
+      # 🚀 Deploy (Mock)
       - name: Deploy
         run: echo "Deployment successful"

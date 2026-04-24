@@ -4,8 +4,10 @@ on:
   push:
     branches: ["master"]
   pull_request:
+
 env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   security-pipeline:
     runs-on: ubuntu-latest
@@ -18,18 +20,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🔐 Secret Scanning (TruffleHog via CLI)
-      - name: Install TruffleHog (latest)
+      # 🔐 Secret Scanning (TruffleHog - FIXED)
+      - name: Install TruffleHog
         run: |
-          wget https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_3.63.2_linux_amd64.tar.gz
-          tar -xvzf trufflehog_3.63.2_linux_amd64.tar.gz
+          wget https://github.com/trufflesecurity/trufflehog/releases/latest/download/trufflehog_linux_amd64.tar.gz
+          tar -xvzf trufflehog_linux_amd64.tar.gz
           sudo mv trufflehog /usr/local/bin/
 
       - name: Run TruffleHog Scan
         run: |
           trufflehog filesystem . --fail --no-update
 
-      # 🔍 CodeQL Init (Stable Action)
+      # 🔍 CodeQL Init
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -47,7 +49,7 @@ jobs:
           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
           -Dsonar.qualitygate.wait=true
 
-      # 🔍 Dependency Scan (Snyk via CLI)
+      # 🔍 Dependency Scan (Snyk CLI)
       - name: Install Snyk
         run: npm install -g snyk
 
@@ -62,7 +64,7 @@ jobs:
       - name: Build Docker Image
         run: docker build -t springboot-devsecops .
 
-      # 🐳 Container Scan (Trivy via CLI)
+      # 🐳 Container Scan (Trivy CLI)
       - name: Install Trivy
         run: |
           sudo apt-get update

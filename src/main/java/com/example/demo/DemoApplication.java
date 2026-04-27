@@ -15,7 +15,7 @@ public class DemoApplication {
 	// ❌ XSS Vulnerability
 	@GetMapping("/")
 	public String home(@RequestParam(defaultValue = "Guest") String name) {
-		return "<h1>Hello " + name + "</h1>";
+		return "<h1>Hello Test " + name + "</h1>";
 	}
 
 	// ❌ Hardcoded secret
